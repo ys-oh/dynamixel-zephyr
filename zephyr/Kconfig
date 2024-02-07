@@ -1,0 +1,17 @@
+
+config DYNAMIXEL
+	bool "DYNAMIXEL SDK Enable"
+	default n
+	depends on SERIAL
+	help
+		ROBOTIS Dynamixel API Enable
+
+if DYNAMIXEL
+
+config DYNAMIXEL_BUS_NUMS
+	int "max dynamixel bus nums"
+	default 3
+	help
+		max dynamixel bus
+
+endif

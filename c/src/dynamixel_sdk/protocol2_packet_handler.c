@@ -26,6 +26,8 @@
 #define WINDLLEXPORT
 #include <Windows.h>
 #include "protocol2_packet_handler.h"
+#elif defined(__ZEPHYR__)
+#include "protocol2_packet_handler.h"
 #endif
 
 #include <stdio.h>
@@ -196,6 +198,7 @@ uint32_t getDataRead2(int port_num, uint16_t data_length, uint16_t data_pos)
 
 unsigned short updateCRC(uint16_t crc_accum, uint8_t *data_blk_ptr, uint16_t data_blk_size)
 {
+  /* TODO: Add CRC16 HW Accelerator */
   uint16_t i, j;
   static const uint16_t crc_table[256] = { 0x0000,
     0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
@@ -251,13 +254,13 @@ void addStuffing(uint8_t *packet)
   uint16_t i;
   uint16_t packet_length_before_crc;
   uint16_t out_index, in_index;
-  
+
   int packet_length_in = DXL_MAKEWORD(packet[PKT_LENGTH_L], packet[PKT_LENGTH_H]);
   int packet_length_out = packet_length_in;
-  
+
   if (packet_length_in < 8) // INSTRUCTION, ADDR_L, ADDR_H, CRC16_L, CRC16_H + FF FF FD
     return;
-  
+
   packet_length_before_crc = packet_length_in - 2;
   for (i = 3; i < packet_length_before_crc; i++)
   {
@@ -265,10 +268,10 @@ void addStuffing(uint8_t *packet)
     if (packet_ptr[0] == 0xFF && packet_ptr[1] == 0xFF && packet_ptr[2] == 0xFD)
       packet_length_out++;
   }
-  
+
   if (packet_length_in == packet_length_out)  // no stuffing required
     return;
-  
+
   out_index  = packet_length_out + 6 - 2;  // last index before crc
   in_index   = packet_length_in + 6 - 2;   // last index before crc
   while (out_index != in_index)
@@ -548,7 +551,7 @@ uint16_t pingGetModelNum2(int port_num, uint8_t id)
     printf("[PingGetModeNum] memory allocation failed.. \n");
     return COMM_TX_FAIL;
   }
-  
+
   if (id >= BROADCAST_ID)
   {
     packetData[port_num].communication_result = COMM_NOT_AVAILABLE;
@@ -749,7 +752,7 @@ void clearMultiTurn2(int port_num, uint8_t id)
     printf("[ClearMultiTurn] memory allocation failed..\n");
     return;
   }
-  
+
   packetData[port_num].tx_packet[PKT_ID] = id;
   packetData[port_num].tx_packet[PKT_LENGTH_L] = 8;
   packetData[port_num].tx_packet[PKT_LENGTH_H] = 0;
@@ -772,7 +775,7 @@ void factoryReset2(int port_num, uint8_t id, uint8_t option)
     printf("[FactoryReset] memory allocation failed..\n");
     return;
   }
-  
+
   packetData[port_num].tx_packet[PKT_ID] = id;
   packetData[port_num].tx_packet[PKT_LENGTH_L] = 4;
   packetData[port_num].tx_packet[PKT_LENGTH_H] = 0;
@@ -792,7 +795,7 @@ void readTx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
     printf("[ReadTx] memory allocation failed..\n");
     return;
   }
-  
+
   if (id >= BROADCAST_ID)
   {
     packetData[port_num].communication_result = COMM_NOT_AVAILABLE;
@@ -828,7 +831,7 @@ void readRx2(int port_num, uint16_t length)
     printf("[ReadRx] memory allocation failed..\n");
     return;
   }
-  
+
   rxPacket2(port_num);
   if (packetData[port_num].communication_result == COMM_SUCCESS)
   {
@@ -854,7 +857,7 @@ void readTxRx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
     printf("[ReadTxRx] memory allocation failed..\n");
     return;
   }
-  
+
   if (id >= BROADCAST_ID)
   {
     packetData[port_num].communication_result = COMM_NOT_AVAILABLE;
@@ -1032,7 +1035,7 @@ void writeTxRx2(int port_num, uint8_t id, uint16_t address, uint16_t length)
     printf("[WriteTxRx] memory allocation failed..\n");
     return;
   }
-  
+
   packetData[port_num].tx_packet[PKT_ID] = id;
   packetData[port_num].tx_packet[PKT_LENGTH_L] = DXL_LOBYTE(length + 5);
   packetData[port_num].tx_packet[PKT_LENGTH_H] = DXL_HIBYTE(length + 5);

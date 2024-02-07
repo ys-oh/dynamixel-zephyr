@@ -31,6 +31,10 @@
 #include "packet_handler.h"
 #include "protocol1_packet_handler.h"
 #include "protocol2_packet_handler.h"
+#elif defined(__ZEPHYR__)
+#include "packet_handler.h"
+#include "protocol1_packet_handler.h"
+#include "protocol2_packet_handler.h"
 #endif
 
 void packetHandler()

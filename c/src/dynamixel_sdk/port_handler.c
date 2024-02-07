@@ -90,4 +90,26 @@ void    setPacketTimeout    (int port_num, uint16_t packet_length) { setPacketTi
 void    setPacketTimeoutMSec(int port_num, double msec) { setPacketTimeoutMSecWindows(port_num, msec); }
 uint8_t isPacketTimeout     (int port_num) { return isPacketTimeoutWindows(port_num); }
 
+#elif defined(__ZEPHYR__)
+#include "port_handler.h"
+#include "port_handler_zephyr.h"
+
+static inline int     portHandler         (const char *port_name) { return portHandlerZephyr(port_name); }
+static inline
+static inline uint8_t openPort            (int port_num) { return openPortZephyr(port_num); }
+static inline void    closePort           (int port_num) { closePortZephyr(port_num); }
+static inline void    clearPort           (int port_num) { clearPortZephyr(port_num); }
+static inline
+static inline void    setPortName         (int port_num, const char *port_name) { setPortNameZephyr(port_num, port_name); }
+static inline char   *getPortName         (int port_num) { return getPortNameZephyr(port_num); }
+static inline
+static inline uint8_t setBaudRate         (int port_num, const int baudrate) { return setBaudRateZephyr(port_num, baudrate); }
+static inline int     getBaudRate         (int port_num) { return getBaudRateZephyr(port_num); }
+static inline
+static inline int     readPort            (int port_num, uint8_t *packet, int length) { return readPortZephyr(port_num, packet, length); }
+static inline int     writePort           (int port_num, uint8_t *packet, int length) { return writePortZephyr(port_num, packet, length); }
+static inline
+static inline void    setPacketTimeout    (int port_num, uint16_t packet_length) { setPacketTimeoutZephyr(port_num, packet_length); }
+static inline void    setPacketTimeoutMSec(int port_num, double msec) { setPacketTimeoutMSecZephyr(port_num, msec); }
+static inline uint8_t isPacketTimeout     (int port_num) { return isPacketTimeoutZephyr(port_num); }
 #endif
